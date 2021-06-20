@@ -12,14 +12,47 @@ object RecFun extends RecFunInterface:
   /**
    * Exercise 1
    */
-  def pascal(c: Int, r: Int): Int = ???
+  def pascal(c: Int, r: Int): Int = {
+    if (c == 0 || c == r) 1 else pascal(c, r - 1) + pascal(c - 1, r - 1)
+  }
 
   /**
    * Exercise 2
    */
-  def balance(chars: List[Char]): Boolean = ???
+  def balance(chars: List[Char]): Boolean = {
+    def balanceHelper(chars: List[Char], parenStack: List[Char]): Boolean = {
+      if(!chars.isEmpty) {
+        if(chars.head == '(') {
+          balanceHelper(chars.tail, chars.head :: parenStack)
+        }
+        else if(chars.head == ')') {
+          if(parenStack.isEmpty || parenStack.head != '(') {
+            balanceHelper(chars.tail, chars.head :: parenStack)
+          }
+          else {
+            balanceHelper(chars.tail, parenStack.tail)
+          }
+        }
+        else {
+          balanceHelper(chars.tail, parenStack)
+        }
+      }
+      else {
+        parenStack.isEmpty
+      }
+    }
+    balanceHelper(chars, List())
+  }
 
   /**
    * Exercise 3
    */
-  def countChange(money: Int, coins: List[Int]): Int = ???
+  def countChange(money: Int, coins: List[Int]): Int = {
+    val filteredCoins = coins.filter(_ <= money)
+    if(filteredCoins.isEmpty) {
+      0
+    }
+    else {
+      1
+    }
+  }
