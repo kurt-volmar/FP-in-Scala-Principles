@@ -48,11 +48,13 @@ object RecFun extends RecFunInterface:
    * Exercise 3
    */
   def countChange(money: Int, coins: List[Int]): Int = {
-    val filteredCoins = coins.filter(_ <= money)
-    if(filteredCoins.isEmpty) {
+    if(money < 0 || coins.isEmpty) {
       0
     }
-    else {
+    else if(money == 0) {
       1
+    }
+    else {
+      countChange(money - coins.head, coins) + countChange(money, coins.tail)
     }
   }
