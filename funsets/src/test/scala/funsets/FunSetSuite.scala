@@ -102,6 +102,56 @@ class FunSetSuite extends munit.FunSuite:
       assert(!contains(s, 3))
   }
 
+  /**
+   * FOR ALL
+   */
+  test("For All Pass: for all x in (s1 ∪ s2 ∪ s3), x > 0") {
+    new TestSets:
+      val s = union(union(s1, s2), s3)
+      assert(forall(s, x => x > 0))
+  }
+
+  test("For All Fail: for all x in (s1 ∪ s2 ∪ s3), x > 1") {
+    new TestSets:
+      val s = union(union(s1, s2), s3)
+      assert(!forall(s, x => x > 1))
+  }
+
+  /**
+   * EXISTS
+   */
+  test("Exists Pass: for all x in (s1 ∪ s2 ∪ s3), x > 2") {
+    new TestSets:
+      val s = union(union(s1, s2), s3)
+      assert(exists(s, x => x > 2))
+  }
+
+  test("Exists Fail: for all x in (s1 ∪ s2 ∪ s3), x > 3") {
+    new TestSets:
+      val s = union(union(s1, s2), s3)
+      assert(!exists(s, x => x > 3))
+  }
+
+  /**
+   * MAP
+   */
+  test("Map Pass: for all x in (s1 ∪ s2 ∪ s3), x = x * 2") {
+    new TestSets:
+      val u = union(union(s1, s2), s3)
+      val s = map(u, x => x * 2)
+      assert(contains(s, 2))
+      assert(contains(s, 4))
+      assert(contains(s, 6))
+  }
+
+  test("Map Fail: for all x in (s1 ∪ s2 ∪ s3), x = x * 2") {
+    new TestSets:
+      val u = union(union(s1, s2), s3)
+      val s = map(u, x => x * 2)
+      assert(!contains(s, 1))
+      assert(!contains(s, 3))
+  }
+
 
   import scala.concurrent.duration.*
   override val munitTimeout = 10.seconds
