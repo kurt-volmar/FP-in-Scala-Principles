@@ -40,7 +40,7 @@ abstract class TweetSet extends TweetSetInterface:
    * Question: Can we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = ???
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, Empty())
 
   /**
    * This is a helper method for `filter` that propagetes the accumulated tweets.
@@ -53,7 +53,7 @@ abstract class TweetSet extends TweetSetInterface:
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def union(that: TweetSet): TweetSet = ???
+  def union(that: TweetSet): TweetSet
 
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -104,9 +104,12 @@ abstract class TweetSet extends TweetSetInterface:
    */
   def foreach(f: Tweet => Unit): Unit
 
-class Empty extends TweetSet:
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
 
+class Empty extends TweetSet:
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
+
+  def union(that: TweetSet): TweetSet = that
+  
   /**
    * The following methods are already implemented
    */
@@ -119,10 +122,18 @@ class Empty extends TweetSet:
 
   def foreach(f: Tweet => Unit): Unit = ()
 
+
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet:
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
+    val leftAcc = if p(elem) then left.filterAcc(p, acc.incl(elem)) else left.filterAcc(p, acc)
+    right.filterAcc(p, leftAcc)
+  }
 
+  def union(that: TweetSet): TweetSet = {
+    val leftAcc = left.union(that.incl(elem))
+    right.union(leftAcc)
+  }
 
   /**
    * The following methods are already implemented
