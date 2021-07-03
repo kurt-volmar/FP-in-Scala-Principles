@@ -9,6 +9,10 @@ class Tweet(val user: String, val text: String, val retweets: Int):
   override def toString: String =
     "User: " + user + "\n" +
     "Text: " + text + " [" + retweets + "]"
+    
+  def rtMax(that: Tweet): Tweet = {
+    if this.retweets > that.retweets then this else that
+  }
 
 /**
  * This represents a set of objects of type `Tweet` in the form of a binary search
@@ -64,7 +68,9 @@ abstract class TweetSet extends TweetSetInterface:
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet
+  
+  def mostRetweetedHelper(currentMostRetweeted: Tweet): Tweet
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -75,7 +81,9 @@ abstract class TweetSet extends TweetSetInterface:
    * Question: Should we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
+  def descendingByRetweet: TweetList
+  
+  def isEmpty: Boolean
 
   /**
    * The following methods are already implemented
@@ -106,9 +114,19 @@ abstract class TweetSet extends TweetSetInterface:
 
 
 class Empty extends TweetSet:
+  def isEmpty: Boolean = true
+  
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
   def union(that: TweetSet): TweetSet = that
+  
+  def mostRetweeted: Tweet = ???
+  
+  def mostRetweetedHelper(currentMostRetweeted: Tweet): Tweet = currentMostRetweeted
+
+  def descendingByRetweet: TweetList = {
+    Nil
+  }
   
   /**
    * The following methods are already implemented
@@ -124,6 +142,7 @@ class Empty extends TweetSet:
 
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet:
+  def isEmpty: Boolean = false
 
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
     val leftAcc = if p(elem) then left.filterAcc(p, acc.incl(elem)) else left.filterAcc(p, acc)
@@ -135,6 +154,22 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet:
     right.union(leftAcc)
   }
 
+  def mostRetweeted: Tweet = {
+      mostRetweetedHelper(elem)
+  }
+  
+  def mostRetweetedHelper(currentMostRetweeted: Tweet): Tweet = {
+    val leftMostRetweets = left.mostRetweetedHelper(elem.rtMax(currentMostRetweeted))
+    right.mostRetweetedHelper(leftMostRetweets)
+  }
+
+  def descendingByRetweet: TweetList = {
+    def descendingByRetweetHelper(tweetSet: TweetSet): TweetList = {
+      if tweetSet.isEmpty then Nil else Cons(tweetSet.mostRetweeted, descendingByRetweetHelper(tweetSet.remove(tweetSet.mostRetweeted)))
+    }
+    descendingByRetweetHelper(this)
+  }
+  
   /**
    * The following methods are already implemented
    */
